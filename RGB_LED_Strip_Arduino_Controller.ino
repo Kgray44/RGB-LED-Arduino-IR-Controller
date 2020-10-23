@@ -2,17 +2,13 @@
 
 #define LED_PIN     7
 #define NUM_LEDS    60
+#define bright = 100
 
 CRGB leds[NUM_LEDS];
 
 char incoming_command = '0';
-long ran = random(NUM_LEDS);
-long de = random(1000);
-
 int l = 1;
 boolean setting = 0;
-
-int bright = 50;
 
 void check_for_input() {
   if (Serial.available() > 0) {
@@ -34,29 +30,14 @@ void setup() {
 
 void loop() {
   int L = 60-l;
-  int M;
   check_for_input();
-  if (incoming_command == 'G'){
+  if (incoming_command == 'G'){ //Activation and deactivation button for the second control
     Serial.println("Switching: ");
     setting = !setting;
     Serial.println(setting);
     delay(1000);
   }
-//  if (setting == 0){
-//    M = 60;
-//  }
-//  else if (setting == 1){
-//    M = L;
-//  }
-  else if (incoming_command == '1'){
-    Serial.println("RED");
-    for (int i = 0; i <= L; i++) {
-      leds[i] = CRGB (255,0,0);
-      FastLED.show();
-      delay(40);
-    }
-  }
-  else if (incoming_command == 'F'){
+  else if (incoming_command == 'F'){ //Choosing second person's amount of LEDs
     for (int i = 60; i >= 0; i--) {
       leds[i] = CRGB (0,0,0);
       FastLED.show();
@@ -67,9 +48,6 @@ void loop() {
     pl:
     check_for_input();
     Serial.println(l);
-    //while((incoming_command != 'A') || (incoming_command != 'B') || (incoming_command != 'D')){
-    //  check_for_input();
-    //}
     if (incoming_command == 'B'){
       if (l < 60){
         l++;
@@ -80,10 +58,6 @@ void loop() {
         l--;
       }
     }
-    //for (int i = l; i >= 0; i--) {
-    //  leds[i] = CRGB (0,0,0);
-    //  FastLED.show();
-    //}
     leds[l] = CRGB (255,0,0);
     FastLED.show();
     if (incoming_command != 'A'){
@@ -97,12 +71,21 @@ void loop() {
   }
   else if (incoming_command == '0'){
     Serial.println("WHITE");
-    for (int i = 0; i <= L; i++) {/////////////////////////////
+    for (int i = 0; i <= L; i++) {
       leds[i] = CRGB (255,255,255);
       FastLED.show();
       delay(40);
     }
   }
+  else if (incoming_command == '1'){
+    Serial.println("RED");
+    for (int i = 0; i <= L; i++) {
+      leds[i] = CRGB (255,0,0);
+      FastLED.show();
+      delay(40);
+    }
+  }
+
   else if (incoming_command == '2'){
     Serial.println("ORANGE");
     for (int i = 0; i <= L; i++) {
@@ -166,25 +149,6 @@ void loop() {
       delay(40);
     }
   }
-  else if (incoming_command == 'E'){
-    sp:
-    rainbowCycle(10);
-    if (incoming_command != 'A'){
-      goto sp;
-    }
-  }
-  else if (incoming_command == 'B'){
-    if (bright < 100){
-      bright++;
-    }
-    FastLED.setBrightness(bright);
-  }
-  else if (incoming_command == 'D'){
-    if (bright > 0){
-      bright--;
-    }
-    FastLED.setBrightness(bright);
-  }
   else if (incoming_command == 'A' && setting == 0){
     for (int i = 60; i >= 0; i--) {
       leds[i] = CRGB (0,0,0);
@@ -198,6 +162,18 @@ void loop() {
       FastLED.show();
       delay(40);
     }
+  }
+  else if (incoming_command == 'B'){
+    if (bright < 100){
+      bright++;
+    }
+    FastLED.setBrightness(bright);
+  }
+  else if (incoming_command == 'D'){
+    if (bright > 0){
+      bright--;
+    }
+    FastLED.setBrightness(bright);
   }
   else if (incoming_command == 'C'){
     for (int i = 0; i <= 60; i++) {
@@ -220,6 +196,15 @@ void loop() {
       goto st;
     }
   }
+  else if (incoming_command == 'E'){
+    sp:
+    rainbowCycle(10);
+    if (incoming_command != 'A'){
+      goto sp;
+    }
+  }
+  
+  //#2 Control
   else if (incoming_command == 'Q' && setting == 1){
     Serial.println("WHITE2");
     for (int i = L; i <= 60; i++) {
@@ -301,11 +286,6 @@ void loop() {
   }
 }
 
-
-
-
-
-
 void rainbowCycle(int SpeedDelay) {
   byte *c;
   uint16_t i, j;
@@ -347,10 +327,6 @@ byte * Wheel(byte WheelPos) {
 
   return c;
 }
-
-
-
-
 
 void showStrip() {
  #ifdef ADAFRUIT_NEOPIXEL_H 
